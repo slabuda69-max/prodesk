@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modular Dashboard • Core Shell</title>
+  <link rel="stylesheet" href="./core/base.css">
+</head>
+<body>
+  <div id="app">
+    <header id="slot-header">
+      <div class="brand">
+        <div class="logo">S</div>
+        <div class="title">Dashboard</div>
+      </div>
+      <div class="actions">
+        <button id="btnAdmin" title="Admin (Alt+A)">⚙️ Admin</button>
+      </div>
+    </header>
+
+    <div id="slot-topbar"></div>
+    <div id="slot-quickbar"></div>
+
+    <main id="slot-main">
+      <section id="slot-favorites"></section>
+      <section id="slot-widgets"></section>
+    </main>
+
+    <div id="slot-overlays"></div>
+    <div id="slot-admin"></div>
+  </div>
+
+  <script type="module">
+    import { boot } from './core/app.js';
+    boot({
+      load: [
+        // Preload all three themes so Appearance tab can switch instantly
+        './modules/themes/classic/theme.module.js',
+        './modules/themes/dark/theme.module.js',
+        './modules/themes/light/theme.module.js',
+        './modules/favorites/favorites.module.js',
+        './modules/widgets/widgets.module.js'
+      ],
+      defaultTheme: 'ui.theme.classic'
+    });
+  </script>
+</body>
+</html>

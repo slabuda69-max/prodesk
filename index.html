@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro-Dash OS</title>
+    <!-- Core layout structure -->
+    <link rel="stylesheet" href="./core/base.css">
+</head>
+<body id="os-shell">
+    
+    <!-- Stable DOM Slots (Core LTS Contract TRD §5) -->
+    <div id="slot-header"></div>
+    <div id="slot-topbar"></div>
+    
+    <div id="slot-main">
+        <div id="slot-quickbar"></div>
+        <div id="slot-favorites"></div>
+        <div id="slot-widgets"></div>
+    </div>
+    
+    <div id="slot-overlays"></div>
+    <div id="slot-admin"></div>
+
+    <!-- Core Loader -->
+    <script type="module" src="./core/app.js"></script>
+</body>
+</html>

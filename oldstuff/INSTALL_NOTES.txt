@@ -1,0 +1,64 @@
+
+Step 2 — Install Favorites Feature Module
+========================================
+
+Files in this package:
+  modules/favorites/favorites.module.js
+
+Install steps (no full replacements):
+
+1) Copy the `modules/favorites/` folder into your project so you have:
+
+   dashboard-core-scaffold/
+     index.html
+     core/
+       app.js
+       registry.js
+       base.css
+     modules/
+       themes/
+         classic/theme.module.js
+         dark/theme.module.js
+         light/theme.module.js
+       favorites/
+         favorites.module.js
+
+2) Edit a single place in `index.html` (inside the `<script type="module">` boot call):
+
+   Add the Favorites module to the `load` array (one new line):
+
+   boot({
+     load: [
+       './modules/themes/classic/theme.module.js',
+       './modules/themes/dark/theme.module.js',
+       './modules/themes/light/theme.module.js',
+       './modules/favorites/favorites.module.js'     // ← add this line
+     ],
+     defaultTheme: 'ui.theme.classic'
+   });
+
+3) (Optional but recommended) Auto‑mount feature modules.
+
+   Add the following **small patch** to the end of the `boot` function in `core/app.js`
+   **after** the default theme has been mounted and **before** `admin.render()`:
+
+   // Auto‑mount all loaded feature modules (non‑themes)
+   for (const m of registry.list()) {
+     if (m.meta && m.meta.kind === 'feature') {
+       await registry.mount(m.meta.name);
+     }
+   }
+
+4) Run via a local server (not file://). Example (Python 3):
+
+   python -m http.server 5500
+   → http://localhost:5500/index.html
+
+5) Verify
+   - The header shows as before.
+   - Click ⚙️ Admin → Tabs visible.
+   - Appearance tab works.
+   - The main page now shows a **Favorites** section box.
+   - Admin → **Links** and **Groups** contain new sections for managing favorites.
+
+That’s it. Future modules will follow the same pattern: copy folder → add a line to `load` → (auto‑mount loop handles it).

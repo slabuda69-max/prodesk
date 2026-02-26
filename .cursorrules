@@ -1,0 +1,80 @@
+
+# Cursor Rules: Modular Dashboard OS (Core LTS + Modules)
+
+[Project]
+Name: Modular Dashboard OS
+Description: Static SPA with a stable Core (LTS) and module-based themes/features. Core exposes slots, registry, admin scaffold, theme tokens, storage, and events. All functionality resides in modules. Updates are delivered as module-only diffs.
+
+[NonNegotiables]
+- Adhere to Module API v1.1 (meta/init/mount/unmount/adminSections).
+- Use CSS-safe IDs for admin sections and DOM nodes (letters, numbers, underscore, hyphen). No dots.
+- ASCII-only source. No optional chaining (?.) or nullish coalescing (??).
+- Token-first CSS. Themes define tokens; features consume tokens; core base.css is structural.
+- Always load modules via dynamic import with new URL(url, document.baseURI).href.
+- Must serve over HTTP. Do not rely on file://.
+- Minimal diffs: return only necessary code changes unless a full file is explicitly requested.
+- No third-party runtime deps or CDNs for MVP.
+
+
+[Instructions]
+-  Use and docs/roadmap.md as needed during the development process.
+-  scope using the docs/Modular_Dashboard_OS_TRD.md 
+-  create a handoff.md document at the end of each session when prompted to "end Session" that creates a prompt to continue where we left off for the next session.
+
+[Files Structure]
+- Consitent standardized file structure.
+- all generated documents that not being used in the program go to a non-implemented directory.
+- all documentation to a documenation directory
+
+
+[Core-LTS]
+Stable Slots (do not rename/remove):
+- slot-header, slot-topbar, slot-quickbar
+- slot-main (contains slot-favorites, slot-widgets)
+- slot-overlays, slot-admin
+
+Core Owns:
+- appCtx (events, storage, theme), registry, admin scaffold, theme switching, stable slots, structural CSS.
+Core Does NOT Own:
+- Feature logic, heavy visuals, or module-specific CSS.
+
+[Module-API]
+Each module must export default with:
+- meta: { name, label, version, kind('feature'|'theme') }
+- async init(ctx), mount(ctx), unmount(ctx)
+- adminSections(ctx) -> [{ tab, id (CSS-safe), title, hint, render(el, ctx) }]
+Theme modules provide tokens only (no JS behavior beyond exposing or injecting tokens).
+
+[Storage]
+- LocalStorage only; keys must be namespaced as: mod:<kind>.<shortname>:data.
+- Wrap read/write in try/catch; JSON-safe.
+
+[Admin]
+- Build tabs from adminSections() after init().
+- On tab select: call section.render(el, ctx).
+- Render failures: show visible inline error and console.error stack.
+- Keyboard: Alt+A toggles Admin.
+
+[Quality]
+- Add brief rationale + manual test steps with every change.
+- Keep functions small, imperative, framework-free.
+- Avoid silent failures; log with clear module prefixes.
+
+[UpdatePolicy]
+- Ship changes as module diffs only.
+- Do not modify Core LTS unless explicitly asked and approved (version bump).
+- If a Core change is necessary, isolate to the smallest patch and document the contract impact.
+
+[Backup]
+- Backup is module agnostic; works even if a module has been added or removed, or re-added.
+- Daily or weekly auto backups.
+- Exportable JSON files for backup or moving to another PC.
+
+[Security]
+- No eval or remote code execution.
+- Iframes: set sandbox/referrerpolicy/allowfullscreen; show message if blocked by CSP/XFO.
+
+[Delivery]
+- Use the established folder structure.
+- New modules go under /modules/<kind>/<name>/.
+- Themes under /modules/themes/<themeName>/.
