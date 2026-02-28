@@ -1,2 +1,205 @@
 /* Core structural styles only (TRD §3) */
-/* Themes will provide colors/tokens */
+/* Themes will provide colors/tokens. Base provides grid/layout only. */
+
+:root {
+    /* Fallback tokens in case a theme hasn't loaded to prevent unreadable text */
+    --ui-surface: #ffffff;
+    --ui-surface-2: #f0f0f0;
+    --ui-border: #cccccc;
+    --ui-text: #333333;
+    --ui-muted: #666666;
+    --ui-accent: #0066cc;
+    --ui-radius: 4px;
+    --ui-gap: 16px;
+    --ui-elev: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body#os-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: var(--ui-surface-2);
+    color: var(--ui-text);
+    font-family: system-ui, -apple-system, sans-serif; /* Basic sans-serif until theme provides better */
+}
+
+/* Header & Topbar Layout */
+#slot-header {
+    background-color: var(--ui-surface);
+    border-bottom: 1px solid var(--ui-border);
+    padding: var(--ui-gap);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+#slot-topbar {
+    background-color: var(--ui-surface);
+    border-bottom: 1px solid var(--ui-border);
+    padding: calc(var(--ui-gap) / 2) var(--ui-gap);
+    flex-shrink: 0;
+}
+
+/* Hide structural slots entirely if they have no content, so we don't end up with weird empty bars across the top or side. */
+#slot-header:empty,
+#slot-topbar:empty,
+#slot-quickbar:empty,
+#slot-favorites:empty,
+#slot-overlays:empty {
+    display: none;
+}
+
+/* Main Content Area */
+#slot-main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+#slot-quickbar {
+    width: 250px;
+    background-color: var(--ui-surface);
+    border-right: 1px solid var(--ui-border);
+    padding: var(--ui-gap);
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+#slot-favorites {
+    width: 300px;
+    background-color: var(--ui-surface);
+    border-right: 1px solid var(--ui-border);
+    padding: var(--ui-gap);
+    overflow-y: auto;
+    flex-shrink: 0;
+    /* Soft transition on hover for premium feel */
+    transition: background-color 0.2s ease;
+}
+
+#slot-widgets {
+    flex: 1;
+    padding: calc(var(--ui-gap) * 2); /* More breathing room */
+    overflow-y: auto;
+    /* Features CSS Grid as requested by TRD §9 MVP */
+    display: grid;
+    /* Responsive auto-fit grid base */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    /* Auto rows to allow variable height widgets */
+    grid-auto-rows: 150px;
+    gap: calc(var(--ui-gap) * 1.5);
+    align-content: start;
+}
+
+/* Overlays & Admin */
+#slot-overlays {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Let clicks pass through default */
+    z-index: 1000;
+}
+
+/* Error Banner System */
+.core-error-banner {
+    position: absolute;
+    top: var(--ui-gap);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff4444; /* Hardcode fallback for critical errors in case themes fail */
+    color: white;
+    padding: var(--ui-gap);
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-elev);
+    z-index: 2000;
+    pointer-events: auto;
+    max-width: 80%;
+}
+
+/* Admin Scaffold Layout */
+#slot-admin {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 400px;
+    max-width: 100vw;
+    background-color: var(--ui-surface);
+    border-left: 1px solid var(--ui-border);
+    box-shadow: var(--ui-elev);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+#slot-admin.is-open {
+    transform: translateX(0);
+}
+
+.admin-header {
+    padding: var(--ui-gap);
+    border-bottom: 1px solid var(--ui-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-close-btn {
+    background: none;
+    border: none;
+    color: var(--ui-text);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.admin-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--ui-border);
+    overflow: hidden;
+    justify-content: space-between;
+}
+
+.admin-tab {
+    flex: 1;
+    text-align: center;
+    padding: calc(var(--ui-gap) / 2) 4px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--ui-text);
+    cursor: pointer;
+}
+
+.admin-tab.active {
+    border-bottom-color: var(--ui-accent);
+    color: var(--ui-accent);
+}
+
+.admin-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--ui-gap);
+}
+
+.admin-empty-state {
+    color: var(--ui-muted);
+    text-align: center;
+    margin-top: calc(var(--ui-gap) * 2);
+}
+
+/* Hidden elements */
+.d-none {
+    display: none !important;
+}

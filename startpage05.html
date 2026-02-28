@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Start • Home</title>
+<style>
+  :root{
+    --bg:#0f1216; --bg-elev:#171b21; --bg-elev-2:#1e242c; --card:#18202a;
+    --text:#eef2f7; --muted:#9aa3ad; --accent:#4aa3ff; --ok:#7bd389; --warn:#f4bf4f; --danger:#ff6b6b;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+    --radius:14px; --radius-sm:10px; --gap:14px;
+    --tile:#1b232e; --tile-border:#242e3b; --tile-hover:#263345;
+    --admin-band:#1a2230; --admin-band-border:#2a3445; --admin-card:#141a22;
+  }
+  [data-theme="light"]{
+    --bg:#f3f6fb; --bg-elev:#ffffff; --bg-elev-2:#f2f5fa; --card:#ffffff;
+    --text:#131722; --muted:#5c6470; --tile:#f7f9fc; --tile-border:#e6ebf3; --tile-hover:#eef3fb;
+    --shadow: 0 10px 25px rgba(0,0,0,.10);
+    --admin-band:#eef3fb; --admin-band-border:#dee6f2; --admin-card:#ffffff;
+  }
+  html,body{height:100%}
+  body{
+    margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+    color:var(--text);
+    background:radial-gradient(1200px 700px at 0% 0%, #152032 0%, transparent 60%), radial-gradient(1200px 700px at 100% 0%, #1a2538 0%, transparent 60%), var(--bg);
+    background-attachment: fixed;
+  }
+  .wrap{ max-width:1200px; margin:0 auto; padding:28px 20px 40px; display:flex; flex-direction:column; gap:var(--gap); }
+  header{ display:grid; gap:var(--gap); grid-template-columns: 1fr auto; align-items:center; }
+  .brand{ display:flex; align-items:center; gap:10px; user-select:none; }
+  .logo{ width:34px; height:34px; border-radius:10px; display:grid; place-items:center; font-weight:800; color:#fff;
+         background: linear-gradient(135deg, var(--accent), #9ad3ff); box-shadow: var(--shadow);}
+  .title{ font-weight:700; letter-spacing:.2px; font-size:18px; }
+  .pill{ color:var(--muted); font-size:12px; border:1px solid var(--tile-border); padding:3px 8px; border-radius:999px; background:var(--bg-elev-2);}
+  .clock{ font-variant-numeric: tabular-nums; letter-spacing:.5px; color:var(--muted); }
+  .topbar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+  .search{ grid-column: 1/-1; display:flex; gap:10px; }
+  .search input,.search select{ background:var(--bg-elev); color:var(--text); border:1px solid var(--tile-border); box-shadow: var(--shadow); padding:14px 16px; border-radius:var(--radius); outline:none; }
+  .search select{ width:160px; } .search input{ flex:1; }
+
+  .btn, button{ background:linear-gradient(180deg, var(--bg-elev), var(--bg-elev-2)); color:var(--text); border:1px solid var(--tile-border); padding:10px 14px; border-radius:12px; cursor:pointer; }
+  .btn:hover{ filter:brightness(1.05); }
+
+  .section{ background:var(--card); border:1px solid var(--tile-border); border-radius:var(--radius); padding:18px; box-shadow: var(--shadow); }
+  .section h2{ margin:0 0 8px; font-size:16px; font-weight:700; color:var(--muted); display:flex; align-items:center; justify-content:space-between; }
+  .toolbar{ display:flex; gap:8px; align-items:center; }
+  .ghost{ opacity:.5 }
+
+  .tiles{ display:grid; gap:12px; grid-template-columns: repeat( auto-fit, minmax(160px, 1fr) ); }
+  .tile{ display:flex; gap:10px; align-items:center; padding:12px 14px; border-radius:12px; border:1px solid var(--tile-border); background:var(--tile);
+         text-decoration:none; color:var(--text); transition: transform .1s ease, background .2s ease; }
+  .tile:hover{ transform: translateY(-2px); background:var(--tile-hover); }
+  .tile .ico{ width:32px; height:32px; border-radius:9px; display:grid; place-items:center; background: var(--bg-elev-2); color:var(--accent); font-weight:700; }
+  .tile small{ color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
+
+  .group-header{ display:flex; align-items:center; justify-content:space-between; cursor:pointer; padding:6px 0; }
+  .group-header .gname{ font-weight:700; color:var(--muted); }
+  .group{ border-top:1px dashed var(--tile-border); padding-top:8px; margin-top:6px; }
+  .group.collapsed .tiles{ display:none; }
+
+  .widgets{ display:grid; gap:var(--gap); grid-template-columns: repeat( auto-fit, minmax(260px, 1fr) ); }
+  .widget{ background:var(--bg-elev); border:1px solid var(--tile-border); border-radius:var(--radius-sm); overflow:hidden; box-shadow: var(--shadow); }
+  .widget header{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background: var(--bg-elev-2); border-bottom:1px solid var(--tile-border); }
+  .widget .body{ padding:12px; }
+  .widget .body textarea{ width:100%; min-height:180px; resize:vertical; background:transparent; color:var(--text); border:none; outline:none; font-family:inherit; font-size:14px; }
+  .calendar-iframe{ width:100%; border:0; display:block; background:#fff; }
+
+  /* Quickbar */
+  .quickbar{ grid-column:1/-1; display:flex; gap:8px; flex-wrap:wrap; }
+  .qbtn{ display:inline-flex; align-items:center; gap:8px; background:var(--bg-elev); border:1px solid var(--tile-border); color:var(--text);
+         border-radius:999px; padding:6px 10px; cursor:pointer; box-shadow: var(--shadow); }
+  .qico{ width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-weight:800; color:#fff; }
+  .qlabel{ font-size:13px; }
+  .qmenu{ position:absolute; background:var(--bg-elev); border:1px solid var(--tile-border); border-radius:10px; padding:6px; display:none; z-index:40; box-shadow:var(--shadow); }
+  .qmenu.open{ display:block; }
+  .qmenu button{ display:block; width:100%; text-align:left; margin:4px 0; }
+
+  /* Overlays (Admin / Chat / Weather) */
+  .overlay{ position: fixed; inset:0; display:none; z-index:50; background: rgba(0,0,0,.5); backdrop-filter: blur(3px); }
+  .overlay.open{ display:block; }
+  .sidepanel{ position:absolute; right:0; top:0; height:100%; width:min(620px, 95vw); background: var(--bg-elev); border-left: 1px solid var(--tile-border); box-shadow: var(--shadow); display:flex; flex-direction:column; }
+  .sidepanel header{ padding:14px 16px; border-bottom:1px solid var(--tile-border); }
+  .tabs{ display:flex; gap:8px; padding:0 16px 12px; border-bottom:1px dashed var(--tile-border); flex-wrap:wrap; }
+  .tab-btn{ padding:8px 10px; border-radius:999px; border:1px solid var(--tile-border); background: var(--bg-elev-2); color:var(--text); cursor:pointer; }
+  .tab-btn.active{ background: var(--accent); border-color: transparent; color:white; }
+  .panel-content{ padding:16px; overflow:auto; }
+
+  /* Admin accordion cards */
+  .acc{ border:1px solid var(--admin-band-border); border-radius:12px; overflow:hidden; background:var(--admin-card); margin-bottom:12px; }
+  .acc-h{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; cursor:pointer; user-select:none;
+          background:var(--admin-band); border-bottom:1px solid var(--admin-band-border); }
+  .acc-h .title{ font-weight:700; color:var(--text); }
+  .acc-h .hint{ color:var(--muted); font-size:12px; }
+  .acc-b{ padding:12px; display:block; }
+  .acc.collapsed .acc-b{ display:none; }
+  .acc.collapsed .acc-h{ border-bottom: none; }
+  .acc-h .chev{ font-size:14px; opacity:.8; }
+
+  /* Fields / rows */
+  .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+  .field input,.field select,.field textarea{ background:var(--bg-elev); color:var(--text); border:1px solid var(--tile-border); padding:10px 12px; border-radius:10px; outline:none; }
+  .list{ display:flex; flex-direction:column; gap:8px; }
+  .row{ display:grid; gap:10px; align-items:center; grid-template-columns: 1fr auto auto auto; background: var(--bg-elev-2); padding:10px; border-radius:10px; border:1px solid var(--tile-border); }
+  .row .title{ font-weight:600; } .row .sub{ color:var(--muted); font-size:12px; }
+
+  .kbd{ font-family: ui-monospace, Menlo, Consolas, monospace; background:#0003; border:1px solid var(--tile-border); padding:0 6px; border-radius:6px; font-size:12px; }
+  .help{ position:fixed; left:14px; top:14px; z-index:5; cursor:pointer; color:var(--muted); user-select:none; }
+  .help:hover{ color:var(--text); }
+  .help-ov{ position:fixed; inset:0; background: rgba(15,18,22,.9); color:#fff; display:none; z-index:60; }
+  .help-ov.open{ display:block; }
+  .help-ov .inner{ max-width:900px; margin:60px auto; padding:24px; line-height:1.6; }
+  .theme-toggle{ border-radius:999px; padding:8px 12px; }
+
+  /* System banners */
+  #hotCorner{ position:fixed; left:0; top:0; width:28px; height:28px; z-index:8; opacity:0; cursor:pointer; }
+  #errorBanner{ display:none; position:fixed; bottom:16px; left:16px; right:16px; background:#3a1f1f; border:1px solid #5c2d2d; color:#ffdede; padding:10px 12px; border-radius:10px; z-index:99; }
+  #alertBanner{ display:none; position:sticky; top:0; z-index:30; margin:-12px 0 8px; padding:10px 12px; border-radius:12px; border:1px solid #6a3b3b; background:linear-gradient(180deg, #3b1e1e, #2a1a1a); color:#ffdede; }
+
+  /* Weather details */
+  .weatherpanel{ width:min(640px, 95vw); }
+  .wx-now{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .wx-now .b{ background:var(--bg-elev-2); border:1px solid var(--tile-border); border-radius:10px; padding:10px; }
+  .wx-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:10px; }
+  .wx-day{ background:var(--bg-elev-2); border:1px solid var(--tile-border); border-radius:10px; padding:10px; text-align:center; }
+  .wx-day .d{ font-weight:700; margin-bottom:6px; color:var(--muted); }
+  .wx-day .i{ font-size:20px; margin:4px 0; }
+  .wx-day .t{ font-size:13px; }
+  .spark{ width:100%; height:64px; display:block; }
+</style>
+</head>
+<body data-theme="auto">
+  <div id="hotCorner" title=" "></div>
+  <div id="errorBanner"></div>
+
+  <div class="help tiny" id="helpBtn">★</div>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">S</div>
+        <div class="title" id="greeting">Welcome</div>
+      </div>
+
+      <div class="topbar">
+        <span class="pill" id="weatherPill" title="Click for details">⛅ Set weather</span>
+        <span class="pill" id="datePill"></span>
+        <span class="clock" id="clock"></span>
+        <span class="clock" id="clockUTC" style="display:none" title="UTC / Zulu time"></span>
+        <button class="theme-toggle" id="themeBtn" title="Toggle theme">🌗 Theme</button>
+        <button id="chatBtn" class="btn" title="AI Chat (Gemini)">💬 Chat</button>
+        <button id="openAdmin" class="btn" title="Admin (Alt+A)" onclick="window.toggleAdmin && toggleAdmin()">⚙️ Admin</button>
+      </div>
+
+      <!-- Quickbar -->
+      <div class="quickbar" id="quickbar"></div>
+
+      <div class="search">
+        <select id="engine">
+          <option value="https://www.google.com/search?q=%s">Google</option>
+          <option value="https://www.bing.com/search?q=%s">Bing</option>
+          <option value="https://duckduckgo.com/?q=%s">DuckDuckGo</option>
+        </select>
+        <input id="q" placeholder="Search the web…  (Press Enter)" />
+      </div>
+    </header>
+
+    <div id="alertBanner"></div>
+
+    <section class="section" id="favoritesSection">
+      <h2>
+        Favorites
+        <div class="toolbar tiny"><span class="ghost">Use Admin to add/edit. Drag tiles to reorder or move between groups.</span></div>
+      </h2>
+      <div id="groupsWrap"></div>
+    </section>
+
+    <section class="section">
+      <h2>
+        Widgets
+        <div class="toolbar tiny"><span class="ghost">Manage in Admin • Drag to reorder</span></div>
+      </h2>
+      <div class="widgets" id="widgets"></div>
+    </section>
+  </div>
+
+  <!-- Admin -->
+  <div class="overlay" id="admin">
+    <div class="sidepanel">
+      <header style="display:flex;align-items:center;justify-content:space-between;">
+        <div><b>Admin</b> <span class="tiny" id="versionBadge" style="opacity:.75"></span></div>
+        <div class="tiny">Press <span class="kbd">Alt</span>+<span class="kbd">A</span> (or ⚙️)</div>
+      </header>
+      <div class="tabs" id="tabs">
+        <button class="tab-btn active" data-tab="links">Links</button>
+        <button class="tab-btn" data-tab="groups">Groups</button>
+        <button class="tab-btn" data-tab="widgets">Widgets</button>
+        <button class="tab-btn" data-tab="settings">Settings</button>
+        <button class="tab-btn" data-tab="backup">Backup</button>
+      </div>
+      <div class="panel-content">
+        <!-- Links TAB -->
+        <div class="tab" id="tab-links">
+          <div class="acc" data-acc="links-add">
+            <div class="acc-h"><div class="title">Add Link</div><div class="hint">Create a new favorite</div><div class="chev">▾</div></div>
+            <div class="acc-b">
+              <div class="field"><label>Title</label><input id="linkTitle" placeholder="e.g., Jira" /></div>
+              <div class="field"><label>URL</label><input id="linkUrl" placeholder="https://…" /></div>
+              <div class="field"><label>Badge (optional)</label><input id="linkBadge" placeholder="e.g., Work" /></div>
+              <div class="field"><label>Color (optional)</label><input id="linkColor" type="color" value="#4aa3ff" /></div>
+              <div class="field"><label>Group</label><select id="linkGroup"></select></div>
+              <div class="field"><button id="addLink">Add Link</button></div>
+            </div>
+          </div>
+          <div class="acc" data-acc="links-list">
+            <div class="acc-h"><div class="title">Link List</div><div class="hint">Reorder (drag), edit or delete</div><div class="chev">▾</div></div>
+            <div class="acc-b"><div class="list" id="linksList"></div></div>
+          </div>
+        </div>
+
+        <!-- Groups TAB -->
+        <div class="tab" id="tab-groups" style="display:none">
+          <div class="acc" data-acc="groups-add">
+            <div class="acc-h"><div class="title">Add Group</div><div class="hint">Create a folder</div><div class="chev">▾</div></div>
+            <div class="acc-b">
+              <div class="field"><label>New group name</label><input id="grpName" placeholder="e.g., Army" /></div>
+              <div class="field"><button id="addGroup">Add Group</button></div>
+              <div class="tiny">Tip: Click a group header on the main page to collapse/expand it.</div>
+            </div>
+          </div>
+          <div class="acc" data-acc="groups-list">
+            <div class="acc-h"><div class="title">Group List</div><div class="hint">Drag to reorder, rename or delete</div><div class="chev">▾</div></div>
+            <div class="acc-b"><div class="list" id="groupsList"></div></div>
+          </div>
+        </div>
+
+        <!-- Widgets TAB -->
+        <div class="tab" id="tab-widgets" style="display:none">
+          <div class="acc" data-acc="widgets-add">
+            <div class="acc-h"><div class="title">Add Widget</div><div class="hint">Calendar, Notes, iFrame</div><div class="chev">▾</div></div>
+            <div class="acc-b">
+              <div class="field">
+                <label>Widget Type</label>
+                <select id="widgetType">
+                  <option value="calendar">Calendar (embed URL)</option>
+                  <option value="notes">Notes</option>
+                  <option value="iframe">Generic iFrame</option>
+                </select>
+              </div>
+              <div class="field" id="wCalendarURLBox">
+                <label>Calendar Embed URL</label>
+                <input id="calendarUrl" placeholder="Paste your Google/Outlook calendar embed URL" />
+              </div>
+              <div class="field" id="wIframeURLBox" style="display:none">
+                <label>iFrame URL</label>
+                <input id="iframeUrl" placeholder="https://…" />
+              </div>
+              <div class="field"><label>Height (px)</label><input id="widgetHeight" type="number" value="520" /></div>
+              <div class="field"><button id="addWidget">Add Widget</button></div>
+            </div>
+          </div>
+          <div class="acc" data-acc="widgets-list">
+            <div class="acc-h"><div class="title">Widget List</div><div class="hint">Drag to reorder; edit or delete</div><div class="chev">▾</div></div>
+            <div class="acc-b"><div class="list" id="widgetsList"></div></div>
+          </div>
+        </div>
+
+        <!-- Settings TAB -->
+        <div class="tab" id="tab-settings" style="display:none">
+          <div class="acc" data-acc="settings-general">
+            <div class="acc-h"><div class="title">General</div><div class="hint">Name, theme, UTC, passcode</div><div class="chev">▾</div></div>
+            <div class="acc-b">
+              <div class="field"><label>Your display name</label><input id="setName" placeholder="Stephen" /></div>
+              <div class="field"><label>Theme</label><select id="setTheme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
+              <div class="field"><label>Show UTC/Zulu clock</label><select id="setUTC"><option value="off">Off</option><option value="on">On</option></select></div>
+              <div class="field"><label>Admin passcode (optional)</label><input id="setPass" placeholder="Set or change passcode" /></div>
+            </div>
+          </div>
+          <div class="acc" data-acc="settings-links">
+            <div class="acc-h"><div class="title">Links & Navigation</div><div class="hint">URL display, new tab, quickbar</div><div class="chev">▾</div></div>
+            <div class="acc-b">
+              <div class="field"><label>Link URL display</label><select id="setLinkUrlDisplay"><option value="hide">Hide</option><option value="host">Host only</option><option value="full">Full URL</option></select></div>
+              <div class="field"><label>Open links in new tab</label><select id="setOpenNewTab"><option value="on">On</option><option value="off">Off</option></select></div>
+              <div class="field"><label>Show Quickbar (top icons)</label><select id="setShowQuickbar"><option value="on">On</option><option value="off">Off</option></select></div>
+            </div>
+          </div>
+          <!-- NOTE: Weather settings are now injected by the Weather module here -->
+          <div id="settings-modules-anchor"></div>
+
+          <div class="acc" data-acc="settings-backup">
+            <div class="acc-h"><div class="title">Auto‑Backup</div><div class="hint">Daily snapshots & auto‑download</div><div class="chev">▾</div></div>
+            <div class="acc-b">
+              <div class="field"><label>Auto‑backup frequency</label><select id="setAutoBackup"><option value="off">Off</option><option value="daily">Daily</option></select></div>
+              <div class="field"><label>Auto‑download backup</label><select id="setAutoBackupDownload"><option value="off">Off</option><option value="on">On</option></select></div>
+              <div class="tiny" id="backupStatus"></div>
+              <div class="field" style="margin-top:12px;"><button id="saveSettings">Save Settings</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backup TAB -->
+        <div class="tab" id="tab-backup" style="display:none">
+          <div class="acc" data-acc="backup-export">
+            <div class="acc-h"><div class="title">Export / Restore</div><div class="hint">Core + modules (skips missing modules on restore)</div><div class="chev">▾</div></div>
+            <div class="acc-b">
+              <div class="field"><button id="exportBtn">Export Settings (JSON)</button></div>
+              <div class="field"><label>Restore from JSON</label><input id="importFile" type="file" accept="application/json" /></div>
+              <div class="tiny" id="orphanInfo"></div>
+            </div>
+          </div>
+          <div class="acc" data-acc="backup-tools">
+            <div class="acc-h"><div class="title">Auto‑Backup Tools</div><div class="hint">Manual snapshot & download</div><div class="chev">▾</div></div>
+            <div class="acc-b">
+              <div class="field"><button id="backupNow">Backup Now</button> <span class="tiny">Stores snapshot locally (core + modules).</span></div>
+              <div class="field"><button id="downloadLastAutoBackup">Download Last Auto‑Backup</button> <span class="tiny" id="lastAutoTime"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weather details drawer (DOM is provided by shell, controlled by module) -->
+  <div class="overlay" id="weatherOverlay">
+    <div class="sidepanel weatherpanel">
+      <header style="display:flex; align-items:center; justify-content:space-between;">
+        <div><b>Weather Details</b> <span class="tiny" id="wxLoc"></span></div>
+        <div><button class="btn" id="wxRefresh">Refresh</button><button class="btn" id="wxClose">Close</button></div>
+      </header>
+      <div class="panel-content" id="wxContent"></div>
+    </div>
+  </div>
+
+  <!-- Chat drawer -->
+  <div class="overlay" id="chat">
+    <div class="sidepanel" style="right:auto; left:0; width:min(720px, 95vw);">
+      <header>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+          <div><b>AI Chat</b> <span class="tiny">Powered by Gemini (optional API key)</span></div>
+          <div class="tiny">https://gemini.google.com/ • https://copilot.microsoft.com/</div>
+        </div>
+      </header>
+      <div style="display:flex; flex-direction:column; height:100%;">
+        <div id="chatMessages" style="flex:1; padding:12px 16px; overflow:auto; display:flex; flex-direction:column; gap:10px;"></div>
+        <div style="display:flex; gap:8px; padding:12px; border-top:1px solid var(--tile-border);">
+          <textarea id="chatInput" placeholder="Ask anything… (Shift+Enter = newline)" style="flex:1; min-height:42px; max-height:240px; resize:vertical; background:var(--bg-elev); color:var(--text); border:1px solid var(--tile-border); border-radius:10px; padding:10px 12px;"></textarea>
+          <button id="chatSend">Send</button>
+          <button id="chatClose">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help -->
+  <div class="help-ov" id="helpOv">
+    <div class="inner">
+      <h2>Start Page • Quick Help</h2>
+      <ul>
+        <li><b>Open Admin:</b> ⚙️, <span class="kbd">Alt</span>+<span class="kbd">A</span>, or triple‑click top‑left corner.</li>
+        <li><b>Admin layout:</b> Tabs + collapsible cards per section (modules can inject sections).</li>
+        <li><b>Favorites:</b> Groups; drag tiles to reorder/move across groups.</li>
+        <li><b>Weather:</b> Pill opens details (module). Admin → Settings shows Weather section.</li>
+        <li><b>Quickbar:</b> YouTube, Amazon, Google, MSN, Spotify (right‑click Spotify for quick actions).</li>
+        <li><b>Backup:</b> Exports **core + modules**; restores and skips missing modules (keeps orphaned state).</li>
+        <li><b>Version:</b> <span id="helpVersion"></span></li>
+      </ul>
+      <button class="btn" id="closeHelp">Close</button>
+    </div>
+  </div>
+
+<script>
+/* ---------- Safety banner ---------- */
+window.addEventListener('error', (e)=>{
+  const b = document.getElementById('errorBanner');
+  b.textContent = 'A script error occurred: ' + (e.message || e);
+  b.style.display = 'block';
+  console.error(e);
+});
+
+/* ---------- Versioning & persistence ---------- */
+const APP_VERSION = 'v0.13.0';
+const SCHEMA_VERSION = 3;
+const STABLE_KEY = 'startpage_data';
+const AUTO_BACKUP_KEY = 'startpage_auto_backup';
+const ORPHAN_KEY = 'startpage_orphan_modstates';
+const ACC_STATE_KEY = 'startpage_admin_acc_state';
+
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+/* ---------- Defaults ---------- */
+const DEFAULT_DATA = {
+  schemaVersion: SCHEMA_VERSION,
+  settings: {
+    theme:'auto',
+    name:'Stephen',
+    adminPass:'',
+    showUTC:false,
+    linkUrlDisplay:'hide',
+    openInNewTab:true,
+    showQuickbar:true,
+    tempUnit:'fahrenheit',                 // kept in core for continuity
+    autoBackup:'off',
+    autoBackupDownload:'off',
+    geminiKey:'',
+    geminiModel:'gemini-1.5-flash-latest',
+    weather: { mode:'manual', city:'', lat:'', lon:'' } // kept in core for continuity
+  },
+  engine: 'https://www.google.com/search?q=%s',
+  groups: [
+    { id: crypto.randomUUID(), name:'Work', collapsed:false },
+    { id: crypto.randomUUID(), name:'Army', collapsed:false },
+    { id: crypto.randomUUID(), name:'Personal', collapsed:false }
+  ],
+  links: [
+    { id: crypto.randomUUID(), title:'Outlook', url:'https://outlook.office.com', badge:'Mail', color:'#f4bf4f', groupId:null },
+    { id: crypto.randomUUID(), title:'Teams', url:'https://teams.microsoft.com', badge:'Chat', color:'#7b83eb', groupId:null },
+    { id: crypto.randomUUID(), title:'My Time Reporting', url:'https://your-time-portal.example', badge:'Time', color:'#7bd389', groupId:null },
+    { id: crypto.randomUUID(), title:'JIRA Production', url:'https://jira.create.army.mil', badge:'Jira', color:'#ff8f6b', groupId:null },
+    { id: crypto.randomUUID(), title:'JIRA Sandbox', url:'https://strijira-dev.unite.mil/', badge:'Sandbox', color:'#4aa3ff', groupId:null },
+    { id: crypto.randomUUID(), title:'Confluence', url:'https://confluence.create.army.mil', badge:'Docs', color:'#7bd389', groupId:null },
+    { id: crypto.randomUUID(), title:'ARMY Portal', url:'https://armyeitaas.sharepoint-mil.us/', badge:'Army', color:'#f4bf4f', groupId:null },
+    { id: crypto.randomUUID(), title:'OST Portal', url:'https://welcome.ukg.net/ui/#/signin/pass/t/ost1500stnc', badge:'OST', color:'#b48cf2', groupId:null }
+  ],
+  widgets: [
+    { id: crypto.randomUUID(), type:'notes', data:'Quick notes…', height:240 }
+  ],
+  chatHistory: []
+};
+
+/* ---------- Load / migrate / save ---------- */
+let db = load();
+
+function migrateToCurrent(obj){
+  obj.settings = { ...structuredClone(DEFAULT_DATA.settings), ...(obj.settings||{}) };
+  obj.groups   = obj.groups || structuredClone(DEFAULT_DATA.groups);
+  obj.links    = obj.links || [];
+  obj.widgets  = obj.widgets || [];
+  obj.engine   = obj.engine || DEFAULT_DATA.engine;
+  obj.chatHistory = obj.chatHistory || [];
+  if(typeof obj.settings.openInNewTab !== 'boolean') obj.settings.openInNewTab = true;
+  if(!obj.settings.tempUnit) obj.settings.tempUnit = 'fahrenheit';
+  if(!obj.settings.autoBackup) obj.settings.autoBackup = 'off';
+  if(!obj.settings.autoBackupDownload) obj.settings.autoBackupDownload = 'off';
+  obj.links.forEach(l=>{ if(!('groupId' in l)) l.groupId = null; });
+  obj.schemaVersion = SCHEMA_VERSION;
+  return obj;
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(STABLE_KEY);
+    if(raw){
+      const obj = JSON.parse(raw);
+      if(!obj || typeof obj!=='object') throw new Error('Corrupt store');
+      return migrateToCurrent(obj);
+    }
+    // migrate newest legacy v-key if present
+    let newest = null;
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && /^startpage_data_v\d+$/i.test(k)){
+        const n = parseInt((k.match(/\d+$/)||['0'])[0],10);
+        if(!newest || n>newest.n) newest = { k, n };
+      }
+    }
+    if(newest){
+      const r = localStorage.getItem(newest.k);
+      if(r){
+        const cand = JSON.parse(r);
+        const migrated = migrateToCurrent(cand||{});
+        localStorage.setItem(STABLE_KEY, JSON.stringify(migrated));
+        return migrated;
+      }
+    }
+    return structuredClone(DEFAULT_DATA);
+  }catch(e){
+    console.warn('Load failed, using defaults', e);
+    return structuredClone(DEFAULT_DATA);
+  }
+}
+function save(){
+  db.schemaVersion = SCHEMA_VERSION;
+  localStorage.setItem(STABLE_KEY, JSON.stringify(db));
+}
+
+/* ---------- Storage helpers (modules & orphans) ---------- */
+const storage = {
+  modKey(name){ return `startpage_mod_${name}`; },
+  getModuleState(name){
+    try{ const raw = localStorage.getItem(storage.modKey(name)); return raw? JSON.parse(raw) : {}; }catch{ return {}; }
+  },
+  setModuleState(name, data){
+    localStorage.setItem(storage.modKey(name), JSON.stringify(data||{}));
+  },
+  getOrphans(){
+    try{ const raw=localStorage.getItem(ORPHAN_KEY); return raw? JSON.parse(raw): {}; }catch{ return {}; }
+  },
+  setOrphans(obj){
+    localStorage.setItem(ORPHAN_KEY, JSON.stringify(obj||{}));
+  }
+};
+
+/* ---------- Utilities ---------- */
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+function hexWithAlpha(hex, a){
+  try{
+    const n=(hex||'').replace('#','');
+    const r=parseInt(n.length===3? n[0]+n[0] : n.slice(0,2),16);
+    const g=parseInt(n.length===3? n[1]+n[1] : n.slice(2,4),16);
+    const b=parseInt(n.length===3? n[2]+n[2] : n.slice(4,6),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }catch{ return 'rgba(74,163,255,.15)'; }
+}
+function sanitizeUrl(u){ if(!u) return ''; if(/^https?:\/\//i.test(u)) return u; return 'https://'+u.replace(/^\/+/,''); }
+function displayUrl(u, mode){
+  try{ const url = new URL(sanitizeUrl(u)); if(mode==='host') return url.host; if(mode==='full') return url.href; return ''; }
+  catch{ if(mode==='full') return u; if(mode==='host') return (u||'').replace(/^https?:\/\//i,'').split('/')[0]; return ''; }
+}
+function move(arr, from, to){ if(to<0 || to>=arr.length) return; const [x]=arr.splice(from,1); arr.splice(to,0,x); }
+
+/* ---------- Greeting, time, theme ---------- */
+function applyTheme(){ document.body.setAttribute('data-theme', db.settings.theme || 'auto'); }
+function tickClock(){
+  const now = new Date();
+  $('#clock').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  $('#datePill').textContent = now.toLocaleDateString(undefined,{ weekday:'short', month:'short', day:'numeric' });
+  const showUTC = !!db.settings.showUTC;
+  $('#clockUTC').style.display = showUTC ? '' : 'none';
+  if(showUTC){ $('#clockUTC').textContent = 'UTC ' + now.toLocaleTimeString('en-GB',{timeZone:'UTC', hour:'2-digit', minute:'2-digit', hour12:false}); }
+}
+function setGreeting(){
+  const name = (db.settings.name || 'there').split(' ')[0];
+  const h = new Date().getHours();
+  const label = (h<12)?'Good morning':(h<18)?'Good afternoon':'Good evening';
+  $('#greeting').textContent = `${label}, ${name}`;
+}
+
+/* ---------- Search ---------- */
+function setupSearch(){
+  const sel = $('#engine'); sel.value = db.engine || DEFAULT_DATA.engine;
+  sel.addEventListener('change', ()=>{ db.engine = sel.value; save(); });
+  $('#q').addEventListener('keydown', e=>{
+    if(e.key==='Enter'){
+      const url = (db.engine || DEFAULT_DATA.engine).replace('%s', encodeURIComponent(e.target.value.trim()));
+      if(e.target.value.trim()) window.location.href = url;
+    }
+  });
+}
+
+/* ---------- Quickbar + Spotify ---------- */
+const QUICKBAR = [
+  { title:'YouTube', url:'https://www.youtube.com', bg:'#FF0000', ico:'▶' },
+  { title:'Amazon',  url:'https://www.amazon.com', bg:'#FF9900', ico:'a' },
+  { title:'Google',  url:'https://www.google.com', bg:'#4285F4', ico:'G' },
+  { title:'MSN Home',url:'https://www.msn.com',    bg:'#008272', ico:'📰' },
+  { title:'Spotify', url:'https://open.spotify.com', bg:'#1DB954', ico:'🎧', menu:[
+      {label:'Open Spotify', href:'https://open.spotify.com'},
+      {label:'Liked Songs', href:'https://open.spotify.com/collection/tracks'},
+      {label:'Recently Played', href:'https://open.spotify.com/collection/recently-played'},
+      {label:'Search…', action: ()=>{ const q=prompt('Search Spotify for:'); if(q) openHref('https://open.spotify.com/search/'+encodeURIComponent(q)); }}
+  ]}
+];
+function openHref(href){ if(db.settings.openInNewTab) window.open(href,'_blank','noopener'); else window.location.href = href; }
+function renderQuickbar(){
+  const wrap = $('#quickbar'); wrap.innerHTML='';
+  if(!db.settings.showQuickbar){ wrap.style.display='none'; return; }
+  wrap.style.display='';
+  QUICKBAR.forEach(item=>{
+    const btn = document.createElement('button');
+    btn.className='qbtn'; btn.title=item.title; btn.type='button';
+    btn.innerHTML = `<span class="qico" style="background:${item.bg}">${escapeHtml(item.ico)}</span><span class="qlabel">${escapeHtml(item.title)}</span>`;
+    btn.addEventListener('click', ()=> openHref(item.url));
+    if(item.menu){
+      btn.addEventListener('contextmenu', e=>{
+        e.preventDefault();
+        showQuickMenu(e.clientX, e.clientY, item.menu);
+      });
+    }
+    wrap.appendChild(btn);
+  });
+}
+function showQuickMenu(x,y,items){
+  let menu = document.getElementById('qmenu');
+  if(!menu){ menu = document.createElement('div'); menu.id='qmenu'; menu.className='qmenu'; document.body.appendChild(menu); }
+  menu.innerHTML='';
+  items.forEach(it=>{
+    const b=document.createElement('button'); b.type='button'; b.textContent=it.label;
+    b.onclick=()=>{ if(it.href) openHref(it.href); else if(it.action) it.action(); menu.classList.remove('open'); };
+    menu.appendChild(b);
+  });
+  menu.style.left = x+'px'; menu.style.top = y+'px'; menu.classList.add('open');
+  setTimeout(()=>{ document.addEventListener('click', ()=>menu.classList.remove('open'), { once:true }); },0);
+}
+
+/* ---------- Favorites: groups + DnD (unchanged) ---------- */
+function groupById(id){ return db.groups.find(g=>g.id===id); }
+function ensureGroupSelect(){
+  const sel = $('#linkGroup'); sel.innerHTML='';
+  const opt0 = document.createElement('option'); opt0.value=''; opt0.textContent='(Ungrouped)'; sel.appendChild(opt0);
+  db.groups.forEach(g=>{ const o=document.createElement('option'); o.value=g.id; o.textContent=g.name; sel.appendChild(o); });
+}
+function renderFavorites(){
+  const wrap = $('#groupsWrap'); wrap.innerHTML='';
+  const map = new Map();
+  const ids = [null, ...db.groups.map(g=>g.id)];
+  ids.forEach(id=> map.set(id, []));
+  db.links.forEach(l=> map.get(l.groupId || null).push(l));
+
+  function makeGroupBlock(gid, labelForNull){
+    const groupObj = gid ? groupById(gid) : { id:null, name:labelForNull||'Ungrouped', collapsed:false };
+    const container = document.createElement('div');
+    container.className = 'group';
+    if(groupObj.collapsed) container.classList.add('collapsed');
+    container.dataset.groupId = gid || '';
+
+    // Accept drop anywhere on group
+    container.addEventListener('dragover', e=>{
+      if(e.dataTransfer.types.includes('text/link')){ e.preventDefault(); e.dataTransfer.dropEffect='move'; }
+    });
+    container.addEventListener('drop', e=>{
+      const linkId = e.dataTransfer.getData('text/link');
+      if(!linkId) return;
+      const i = db.links.findIndex(l=>l.id===linkId);
+      if(i>=0){ db.links[i].groupId = gid || null; save(); renderFavorites(); refreshAdmin(); }
+      e.stopPropagation();
+    });
+
+    const header = document.createElement('div');
+    header.className='group-header';
+    header.draggable = !!gid;
+    header.innerHTML = `<div class="gname">${escapeHtml(groupObj.name)}</div><div class="tiny">${groupObj.collapsed?'Expand ⯈':'Collapse ⯆'}</div>`;
+    header.addEventListener('click', (e)=>{
+      if(e.target===header || e.target.classList.contains('tiny')){
+        groupObj.collapsed = !groupObj.collapsed;
+        save(); renderFavorites();
+      }
+    });
+    // Header accepts link drop
+    header.addEventListener('dragover', e=>{
+      if(e.dataTransfer.types.includes('text/link')){ e.preventDefault(); e.dataTransfer.dropEffect='move'; }
+    });
+    header.addEventListener('drop', e=>{
+      const linkId = e.dataTransfer.getData('text/link'); if(!linkId) return;
+      const i = db.links.findIndex(l=>l.id===linkId); if(i>=0){ db.links[i].groupId = gid || null; save(); renderFavorites(); refreshAdmin(); }
+      e.stopPropagation();
+    });
+    // Reorder groups
+    if(gid){
+      header.addEventListener('dragstart', e=>{
+        e.dataTransfer.setData('text/group', gid);
+        e.dataTransfer.effectAllowed='move';
+      });
+      header.addEventListener('dragover', e=>{ if(e.dataTransfer.types.includes('text/group')) e.preventDefault(); });
+      header.addEventListener('drop', e=>{
+        const src = e.dataTransfer.getData('text/group'); if(!src) return;
+        const from = db.groups.findIndex(x=>x.id===src);
+        const to   = db.groups.findIndex(x=>x.id===gid);
+        if(from>=0 && to>=0 && from!==to){ move(db.groups, from, to); save(); renderFavorites(); refreshAdmin(); }
+      });
+    }
+
+    container.appendChild(header);
+
+    const tiles = document.createElement('div');
+    tiles.className='tiles';
+    tiles.dataset.groupId = gid || '';
+    tiles.addEventListener('dragover', e=>{
+      if(e.dataTransfer.types.includes('text/link')){ e.preventDefault(); e.dataTransfer.dropEffect='move'; }
+    });
+    tiles.addEventListener('drop', e=>{
+      const linkId = e.dataTransfer.getData('text/link'); if(!linkId) return;
+      const i = db.links.findIndex(l=>l.id===linkId); if(i<0) return;
+      db.links[i].groupId = gid || null; save(); renderFavorites(); refreshAdmin();
+    });
+
+    (map.get(gid || null) || []).forEach((link, idx)=>{
+      const a = document.createElement('a');
+      a.className='tile'; a.href=sanitizeUrl(link.url);
+      if(db.settings.openInNewTab){ a.target='_blank'; a.rel='noopener noreferrer'; }
+      a.draggable = true;
+      a.addEventListener('dragstart', e=>{
+        e.dataTransfer.setData('text/link', link.id);
+        e.dataTransfer.setData('text/link-idx', String(idx));
+        e.dataTransfer.setData('text/link-group', gid || '');
+        e.dataTransfer.effectAllowed='move';
+      });
+      a.addEventListener('dragover', e=>{
+        if(e.dataTransfer.getData('text/link')){ e.preventDefault(); e.dataTransfer.dropEffect='move'; }
+      });
+      a.addEventListener('drop', e=>{
+        const draggedId = e.dataTransfer.getData('text/link');
+        const srcGroup  = e.dataTransfer.getData('text/link-group') || '';
+        const srcIdx    = parseInt(e.dataTransfer.getData('text/link-idx')||'-1',10);
+        if(!draggedId) return;
+        const dstGroup = gid || '';
+        if(srcGroup !== dstGroup){
+          const i = db.links.findIndex(l=>l.id===draggedId); if(i<0) return;
+          db.links[i].groupId = gid || null;
+        }else{
+          const globalIdxs = db.links.map((l,i)=> ({i, g:(l.groupId||'')===dstGroup})).filter(x=>x.g).map(x=>x.i);
+          const srcGlobal = globalIdxs[srcIdx];
+          const dstLocal  = idx;
+          const dstGlobal = globalIdxs[dstLocal];
+          if(Number.isInteger(srcGlobal) && Number.isInteger(dstGlobal)){
+            move(db.links, srcGlobal, dstGlobal);
+          }
+        }
+        save(); renderFavorites(); refreshAdmin();
+        e.stopPropagation();
+      });
+
+      const mode = db.settings.linkUrlDisplay || 'hide';
+      const urlText = displayUrl(link.url, mode);
+      const badge = link.badge ? ` • ${escapeHtml(link.badge)}` : '';
+      const smallLine = (mode==='hide')
+        ? (link.badge ? `<small>${escapeHtml(link.badge)}</small>` : '')
+        : `<small title="${escapeHtml(link.url)}">${escapeHtml(urlText)}${badge}</small>`;
+      a.innerHTML = `
+        <div class="ico" style="background:${hexWithAlpha(link.color||'#4aa3ff', .15)}; color:${link.color||'#4aa3ff'}">${escapeHtml(link.title.slice(0,1).toUpperCase())}</div>
+        <div class="meta">
+          <div>${escapeHtml(link.title)}</div>
+          ${smallLine}
+        </div>`;
+      tiles.appendChild(a);
+    });
+
+    container.appendChild(tiles);
+    return container;
+  }
+
+  if((map.get(null)||[]).length){ wrap.appendChild(makeGroupBlock(null, 'Ungrouped')); }
+  db.groups.forEach(g=> wrap.appendChild(makeGroupBlock(g.id)));
+}
+
+/* ---------- Widgets ---------- */
+function renderWidgets(){
+  const wrap = $('#widgets'); wrap.innerHTML='';
+  db.widgets.forEach(w=>{
+    const card = document.createElement('div'); card.className='widget';
+    let title = w.type==='calendar' ? 'Calendar' : (w.type==='notes' ? 'Notes' : 'iFrame');
+    card.innerHTML = `<header><div>${title}</div></header><div class="body" ${w.type!=='notes'?'':'style="padding:0"'}></div>`;
+    const body = card.querySelector('.body');
+    if(w.type==='notes'){
+      const ta = document.createElement('textarea'); ta.value = w.data || ''; ta.placeholder='Type notes… (saved automatically)';
+      ta.addEventListener('input', ()=>{ w.data = ta.value; save(); });
+      body.appendChild(ta);
+    }else{
+      const url = sanitizeUrl(w.url || ''); const h = Math.max(200, Math.min(1400, Number(w.height)||520));
+      const iframe = document.createElement('iframe'); iframe.className='calendar-iframe'; iframe.height = h; iframe.src = url || 'about:blank';
+      body.appendChild(iframe);
+      if(!url){ const empty=document.createElement('div'); empty.className='tiny'; empty.style.color='var(--muted)'; empty.style.padding='12px';
+        empty.textContent = 'No URL set. Add one in Admin → Widgets.'; body.appendChild(empty); }
+    }
+    wrap.appendChild(card);
+  });
+}
+
+/* ---------- Admin: open/close, tabs, accordions ---------- */
+window.toggleAdmin = function toggleAdmin(){
+  const admin = $('#admin');
+  if(admin.classList.contains('open')){ admin.classList.remove('open'); return; }
+  const pass = db.settings.adminPass || '';
+  if(pass){ const got = prompt('Enter admin passcode:'); if(got!==pass){ alert('Incorrect passcode.'); return; } }
+  admin.classList.add('open'); refreshAdmin(); restoreAccordionState(); wireAccordionHandlers(); ModuleRegistry.mountAdminSections(appCtx); restoreAccordionState(); wireAccordionHandlers();
+};
+function openTab(name){
+  $$('#tabs .tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===name));
+  $$('.tab').forEach(t=> t.style.display = (t.id==='tab-'+name)?'block':'none');
+  restoreAccordionState(); wireAccordionHandlers(); ModuleRegistry.mountAdminSections(appCtx); restoreAccordionState(); wireAccordionHandlers();
+}
+function restoreAccordionState(){
+  let state = {};
+  try{ state = JSON.parse(localStorage.getItem(ACC_STATE_KEY)||'{}'); }catch{ state = {}; }
+  // Only apply to visible tab
+  $$('.tab').forEach(tab=>{
+    if(tab.style.display==='none') return;
+    tab.querySelectorAll('.acc').forEach(acc=>{
+      const key = acc.getAttribute('data-acc') || '';
+      const collapsed = state[key] === true;
+      acc.classList.toggle('collapsed', collapsed);
+      const chev = acc.querySelector('.chev'); if(chev) chev.textContent = collapsed ? '▸' : '▾';
+    });
+  });
+}
+function wireAccordionHandlers(){
+  // Rebind (avoid duplicates) by cloning headers
+  $$('.acc .acc-h').forEach(h=>{
+    const clone = h.cloneNode(true);
+    h.parentNode.replaceChild(clone, h);
+  });
+  $$('.acc .acc-h').forEach(h=>{
+    h.addEventListener('click', ()=>{
+      const acc = h.closest('.acc');
+      const isCollapsed = acc.classList.toggle('collapsed');
+      const chev = acc.querySelector('.chev'); if(chev) chev.textContent = isCollapsed ? '▸' : '▾';
+      let state = {};
+      try{ state = JSON.parse(localStorage.getItem(ACC_STATE_KEY)||'{}'); }catch{ state = {}; }
+      const key = acc.getAttribute('data-acc') || '';
+      state[key] = isCollapsed === true;
+      localStorage.setItem(ACC_STATE_KEY, JSON.stringify(state));
+    });
+  });
+}
+
+/* ---------- Admin renderers & actions ---------- */
+function refreshAdmin(){
+  $('#versionBadge').textContent = APP_VERSION;
+  renderLinksList(); renderWidgetsList(); renderGroupsList(); ensureGroupSelect();
+
+  // Settings values
+  $('#setName').value = db.settings.name || '';
+  $('#setTheme').value = db.settings.theme || 'auto';
+  $('#setPass').value = db.settings.adminPass || '';
+  $('#setUTC').value = db.settings.showUTC ? 'on' : 'off';
+  $('#setLinkUrlDisplay').value = db.settings.linkUrlDisplay || 'hide';
+  $('#setOpenNewTab').value = db.settings.openInNewTab ? 'on' : 'off';
+  $('#setShowQuickbar').value = db.settings.showQuickbar ? 'on' : 'off';
+  $('#backupStatus').textContent = (loadAutoBackup()?.time)
+    ? `Last auto-backup: ${new Date(loadAutoBackup().time).toLocaleString()}`
+    : 'No auto-backup yet.';
+  $('#lastAutoTime').textContent = (loadAutoBackup()?.time)
+    ? `Last: ${new Date(loadAutoBackup().time).toLocaleString()}`
+    : '';
+  // Gemini fields
+  $('#setGeminiKey').value = db.settings.geminiKey || '';
+  $('#setGeminiModel').value = db.settings.geminiModel || 'gemini-1.5-flash-latest';
+  // Backup fields
+  $('#setAutoBackup').value = db.settings.autoBackup || 'off';
+  $('#setAutoBackupDownload').value = db.settings.autoBackupDownload || 'off';
+
+  // Orphan info
+  const orphans = storage.getOrphans();
+  const keys = Object.keys(orphans||{});
+  $('#orphanInfo').textContent = keys.length
+    ? `Orphaned module states present: ${keys.join(', ')} (will be used if those modules are added later)`
+    : '';
+}
+
+/* Links list (Admin) */
+function renderLinksList(){
+  const box = $('#linksList'); box.innerHTML='';
+  db.links.forEach((l,idx)=>{
+    const gname = (l.groupId && groupById(l.groupId)) ? groupById(l.groupId).name : 'Ungrouped';
+    const row = document.createElement('div'); row.className='row'; row.draggable = true;
+    row.innerHTML = `
+      <div>
+        <div class="title">${escapeHtml(l.title)}</div>
+        <div class="sub">${escapeHtml(l.url)} ${l.badge? ' • '+escapeHtml(l.badge):''} • <i>${escapeHtml(gname)}</i></div>
+      </div>
+      <div class="actions"><button data-dir="-1">↑</button><button data-dir="1">↓</button></div>
+      <div><button class="btn" data-edit="1">Edit</button></div>
+      <div><button class="btn" data-del="1" style="background:linear-gradient(180deg,#3b1e1e,#2a1a1a); border-color:#5c2d2d; color:#ffaaaa">Delete</button></div>`;
+    row.querySelector('[data-dir="-1"]').onclick = ()=>{ move(db.links, idx, idx-1); save(); renderFavorites(); renderLinksList(); };
+    row.querySelector('[data-dir="1"]').onclick = ()=>{ move(db.links, idx, idx+1); save(); renderFavorites(); renderLinksList(); };
+    row.querySelector('[data-del]').onclick = ()=>{ if(confirm('Delete this link?')){ db.links.splice(idx,1); save(); renderFavorites(); renderLinksList(); } };
+    row.querySelector('[data-edit]').onclick = ()=>{
+      const t = prompt('Title', l.title); if(t===null) return;
+      const u = prompt('URL', l.url); if(u===null) return;
+      const b = prompt('Badge (optional)', l.badge||''); if(b===null) return;
+      const c = prompt('Color hex (e.g., #4aa3ff)', l.color||'#4aa3ff'); if(c===null) return;
+      const names = ['(Ungrouped)', ...db.groups.map(g=>g.name)];
+      const pick = prompt('Group (type exactly):\n'+names.join(', '), (l.groupId && groupById(l.groupId))? groupById(l.groupId).name : '(Ungrouped)');
+      let gid = null; if(pick && pick!=='(Ungrouped)'){ const gg = db.groups.find(x=>x.name===pick); if(gg) gid = gg.id; }
+      l.title=t.trim(); l.url=u.trim(); l.badge=b.trim(); l.color=c.trim(); l.groupId=gid; save(); renderFavorites(); renderLinksList();
+    };
+    // DnD reorder
+    row.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/link-admin-idx', String(idx)); e.dataTransfer.effectAllowed='move'; });
+    row.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; });
+    row.addEventListener('drop', e=>{
+      const from = parseInt(e.dataTransfer.getData('text/link-admin-idx')||'-1',10);
+      if(from<0) return; const to = idx;
+      if(from!==to){ move(db.links, from, to); save(); renderFavorites(); renderLinksList(); }
+    });
+    box.appendChild(row);
+  });
+}
+
+/* Groups list (Admin) */
+function renderGroupsList(){
+  const box = $('#groupsList'); box.innerHTML='';
+  db.groups.forEach((g,idx)=>{
+    const row = document.createElement('div'); row.className='row'; row.draggable = true;
+    row.innerHTML = `
+      <div><div class="title">${escapeHtml(g.name)}</div><div class="sub">${g.collapsed?'Collapsed':'Expanded'}</div></div>
+      <div class="actions"><button data-dir="-1">↑</button><button data-dir="1">↓</button></div>
+      <div><button class="btn" data-rename="1">Rename</button></div>
+      <div><button class="btn" data-del="1" style="background:linear-gradient(180deg,#3b1e1e,#2a1a1a); border-color:#5c2d2d; color:#ffaaaa">Delete</button></div>`;
+    row.querySelector('[data-dir="-1"]').onclick = ()=>{ move(db.groups, idx, idx-1); save(); renderFavorites(); renderGroupsList(); ensureGroupSelect(); };
+    row.querySelector('[data-dir="1"]').onclick = ()=>{ move(db.groups, idx, idx+1); save(); renderFavorites(); renderGroupsList(); ensureGroupSelect(); };
+    row.querySelector('[data-rename]').onclick = ()=>{ const nn = prompt('New name', g.name); if(nn===null) return; g.name = nn.trim()||g.name; save(); renderFavorites(); renderGroupsList(); ensureGroupSelect(); };
+    row.querySelector('[data-del]').onclick = ()=>{
+      if(!confirm('Delete this group? Links inside will become ungrouped.')) return;
+      const gid = g.id; db.links.forEach(l=>{ if(l.groupId===gid) l.groupId=null; });
+      db.groups.splice(idx,1); save(); renderFavorites(); renderGroupsList(); ensureGroupSelect();
+    };
+    // DnD
+    row.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/group-admin-idx', String(idx)); e.dataTransfer.effectAllowed='move'; });
+    row.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; });
+    row.addEventListener('drop', e=>{
+      const from = parseInt(e.dataTransfer.getData('text/group-admin-idx')||'-1',10);
+      if(from<0) return; const to=idx;
+      if(from!==to){ move(db.groups, from, to); save(); renderFavorites(); renderGroupsList(); ensureGroupSelect(); }
+    });
+    box.appendChild(row);
+  });
+}
+
+/* Widgets list (Admin) */
+function renderWidgetsList(){
+  const box=$('#widgetsList'); box.innerHTML='';
+  db.widgets.forEach((w,idx)=>{
+    const label = w.type==='calendar' ? `Calendar • ${w.url? 'set':'no URL'}`
+               : w.type==='notes' ? 'Notes'
+               : `iFrame • ${w.url? 'set':'no URL'}`;
+    const row=document.createElement('div'); row.className='row'; row.draggable = true;
+    row.innerHTML = `
+      <div><div class="title">${label}</div><div class="sub">Height: ${w.height||'—'}px</div></div>
+      <div class="actions"><button data-dir="-1">↑</button><button data-dir="1">↓</button></div>
+      <div><button class="btn" data-edit="1">Edit</button></div>
+      <div><button class="btn" data-del="1" style="background:linear-gradient(180deg,#3b1e1e,#2a1a1a); border-color:#5c2d2d; color:#ffaaaa">Delete</button></div>`;
+    row.querySelector('[data-dir="-1"]').onclick=()=>{ move(db.widgets, idx, idx-1); save(); renderWidgets(); renderWidgetsList(); };
+    row.querySelector('[data-dir="1"]').onclick=()=>{ move(db.widgets, idx, idx+1); save(); renderWidgets(); renderWidgetsList(); };
+    row.querySelector('[data-edit]').onclick=()=>{
+      if(w.type==='notes'){ const h=prompt('Height (px)', String(w.height||240)); if(h===null) return; w.height=Number(h)||240; }
+      else{ const url=prompt('URL', w.url||''); if(url===null) return; const h=prompt('Height (px)', String(w.height||520)); if(h===null) return; w.url=url.trim(); w.height=Number(h)||520; }
+      save(); renderWidgets(); renderWidgetsList();
+    };
+    row.querySelector('[data-del]').onclick=()=>{ if(confirm('Delete this widget?')){ db.widgets.splice(idx,1); save(); renderWidgets(); renderWidgetsList(); } };
+    row.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/widget-idx', String(idx)); e.dataTransfer.effectAllowed='move'; });
+    row.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; });
+    row.addEventListener('drop', e=>{
+      const from=parseInt(e.dataTransfer.getData('text/widget-idx')||'-1',10); if(from<0) return;
+      const to=idx; if(from!==to){ move(db.widgets, from, to); save(); renderWidgets(); renderWidgetsList(); }
+    });
+    box.appendChild(row);
+  });
+}
+
+/* ---------- Backup / restore (core + modules) ---------- */
+function fmtDate(t){ const d=new Date(t); const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}${m}${day}`; }
+function loadAutoBackup(){ try{ const raw=localStorage.getItem(AUTO_BACKUP_KEY); return raw? JSON.parse(raw): null; }catch{ return null; } }
+function createAutoBackup(userTriggered=false){
+  const bundle = exportAll();
+  const time = Date.now();
+  const wrap = { time, data: bundle };
+  localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify(wrap));
+  if(userTriggered || db.settings.autoBackupDownload==='on'){
+    const name = `startpage-autobackup-${fmtDate(time)}.json`;
+    downloadBlob(JSON.stringify(bundle,null,2), name, 'application/json');
+  }
+}
+function doAutoBackupIfDue(fromSettingsSave=false){
+  if(db.settings.autoBackup!=='daily') return;
+  const last = loadAutoBackup();
+  const now = Date.now(), dayMs = 24*60*60*1000;
+  if(!last || (now - last.time) > (fromSettingsSave? 0 : dayMs)){
+    createAutoBackup(false);
+  }
+}
+function downloadBlob(text, name, type){
+  const b=new Blob([text],{type:type||'application/octet-stream'}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+}
+
+/* Export bundle: core + modules (+ orphan states for visibility) */
+function exportAll(){
+  const modules = {};
+  ModuleRegistry.list().forEach(m=>{
+    // primary path: let module share its own persisted state
+    const state = storage.getModuleState(m.meta.name);
+    modules[m.meta.name] = { version: m.meta.version, state };
+  });
+  const orphans = storage.getOrphans(); // present for transparency
+  return {
+    appVersion: APP_VERSION,
+    schemaVersion: SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    core: db,
+    modules,
+    orphans
+  };
+}
+
+/* Import bundle: apply core, feed modules if present, else orphan */
+async function importAll(obj){
+  if(!obj || typeof obj!=='object') throw new Error('Invalid JSON');
+  // Core
+  db = migrateToCurrent(obj.core||{});
+  save();
+
+  // Modules
+  const orphanMap = storage.getOrphans();
+  const incoming = obj.modules || {};
+  const registered = new Set(ModuleRegistry.list().map(m=>m.meta.name));
+  for(const name of Object.keys(incoming)){
+    const m = ModuleRegistry.get(name);
+    if(m){
+      storage.setModuleState(name, incoming[name].state || {});
+    }else{
+      // store as orphan for future module availability
+      orphanMap[name] = incoming[name].state || {};
+    }
+  }
+  storage.setOrphans(orphanMap);
+
+  // Re-render everything
+  applyTheme(); setGreeting(); setupSearch();
+  renderQuickbar(); renderFavorites(); renderWidgets();
+  refreshAdmin(); restoreAccordionState(); wireAccordionHandlers(); ModuleRegistry.mountAdminSections(appCtx);
+  // Let modules self-refresh after import
+  await ModuleRegistry.afterImport(appCtx);
+}
+
+/* ---------- Module Registry (internal modules) ---------- */
+const ModuleRegistry = (function(){
+  const mods = new Map();
+
+  return {
+    register(m){
+      if(!m || !m.meta || !m.meta.name) throw new Error('Invalid module');
+      mods.set(m.meta.name, m);
+    },
+    get(name){ return mods.get(name); },
+    list(){ return Array.from(mods.values()); },
+
+    async initAll(ctx){
+      for(const m of mods.values()){
+        if(m.init) try{ await m.init(ctx); }catch(e){ console.warn(`Module ${m.meta.name} init failed`, e); }
+      }
+    },
+    async mountAll(ctx){
+      for(const m of mods.values()){
+        if(m.mount) try{ await m.mount(ctx); }catch(e){ console.warn(`Module ${m.meta.name} mount failed`, e); }
+      }
+    },
+    mountAdminSections(ctx){
+      // Each module may return admin sections to inject
+      for(const m of mods.values()){
+        if(typeof m.adminSections === 'function'){
+          try{
+            const sections = m.adminSections(ctx) || [];
+            sections.forEach(s=> adminAddSection(s));
+          }catch(e){ console.warn(`Module ${m.meta.name} adminSections failed`, e); }
+        }
+      }
+    },
+    async afterImport(ctx){
+      for(const m of mods.values()){
+        if(typeof m.afterImport === 'function'){
+          try{ await m.afterImport(ctx); }catch(e){ console.warn(`Module ${m.meta.name} afterImport failed`, e); }
+        }
+      }
+    }
+  };
+})();
+
+/* Admin helper: add a module-provided section (accordion card) */
+function adminAddSection(section){
+  const tabId = `tab-${section.tab}`;
+  const tab = document.getElementById(tabId);
+  if(!tab) return;
+  const accId = section.id;
+  // Avoid duplicates (clear existing with same data-acc)
+  const existing = tab.querySelector(`.acc[data-acc="${accId}"]`);
+  if(existing) existing.remove();
+
+  const acc = document.createElement('div');
+  acc.className = 'acc';
+  acc.setAttribute('data-acc', accId);
+  acc.innerHTML = `
+    <div class="acc-h"><div class="title">${escapeHtml(section.title||'')}</div><div class="hint">${escapeHtml(section.hint||'')}</div><div class="chev">▾</div></div>
+    <div class="acc-b"></div>
+  `;
+  tab.appendChild(acc);
+  const body = acc.querySelector('.acc-b');
+  try{
+    section.render(body, appCtx);
+  }catch(e){
+    body.innerHTML = `<div class="tiny" style="color:#ffaaaa">Section failed to render: ${escapeHtml(e.message||e)}</div>`;
+  }
+}
+
+/* ---------- Weather Module (extracted) ---------- */
+const weatherModule = (function(){
+  const meta = { name:'weather', version:'1.0.0' };
+
+  let lastWeather = null, lastDiag = null, hourly = null;
+  const WMO_ICON = code=>{
+    if(code===0) return '☀️';
+    if([1,2].includes(code)) return '🌤️';
+    if([3].includes(code)) return '☁️';
+    if([45,48].includes(code)) return '🌫️';
+    if([51,53,55,56,57].includes(code)) return '🌦️';
+    if([61,63,65,66,67,80,81,82].includes(code)) return '🌧️';
+    if([71,73,75,77,85,86].includes(code)) return '🌨️';
+    if([95,96,99].includes(code)) return '⛈️';
+    return '⛅';
+  };
+  const unitSuffix = ()=> (db.settings.tempUnit||'fahrenheit')==='fahrenheit' ? '°F':'°C';
+  const windUnitSuffix = ()=> (db.settings.tempUnit||'fahrenheit')==='fahrenheit' ? 'mph':'km/h';
+  function fetchJsonWithTimeout(url, ms=10000){
+    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),ms);
+    return fetch(url,{signal:ctrl.signal}).then(r=>{ if(!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }).finally(()=>clearTimeout(t));
+  }
+
+  async function updateWeather(openDetails=false){
+    const pill = $('#weatherPill'); const prevText = pill.textContent;
+    const hint = $('#wxTestHint');
+    if(hint) hint.textContent='Updating…';
+    pill.textContent = '⛅ Updating…';
+    try{
+      const wset = db.settings.weather || { mode:'manual' };
+      let lat = parseFloat(wset.lat), lon = parseFloat(wset.lon);
+      let locLabel = (wset.city||'').trim();
+
+      if(wset.mode==='auto'){
+        const pos=await new Promise((res,rej)=>{ if(!('geolocation'in navigator)) rej(new Error('Geolocation not available')); navigator.geolocation.getCurrentPosition(res,rej,{enableHighAccuracy:false,timeout:6000});});
+        lat=pos.coords.latitude; lon=pos.coords.longitude; if(!locLabel) locLabel='My location';
+      }
+      if(wset.mode==='manual' && locLabel && (!isFinite(lat)||!isFinite(lon))){
+        const g=await fetchJsonWithTimeout(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locLabel)}&count=1`, 10000);
+        if(g?.results?.length){ lat=g.results[0].latitude; lon=g.results[0].longitude; locLabel = g.results[0].name + (g.results[0].admin1? ', '+g.results[0].admin1 : ''); }
+      }
+      if(!isFinite(lat)||!isFinite(lon)){ pill.textContent='⛅ Set weather'; pill.title='Set City/coords in Settings → Weather'; if(hint) hint.textContent='Set city/coords.'; return; }
+
+      const tempUnit=(db.settings.tempUnit||'fahrenheit'); const windUnit=(tempUnit==='fahrenheit')?'mph':'kmh';
+      const base='https://api.open-meteo.com/v1/forecast';
+      const url = `${base}?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&hourly=temperature_2m,apparent_temperature,relativehumidity_2m&timezone=auto&temperature_unit=${encodeURIComponent(tempUnit)}&wind_speed_unit=${encodeURIComponent(windUnit)}`;
+      const j=await fetchJsonWithTimeout(url, 12000);
+      if(!j?.current_weather) throw new Error('No weather data.');
+      const cur=j.current_weather, daily=j.daily, unit=unitSuffix(), t=Math.round(cur.temperature), icon=WMO_ICON(cur.weathercode);
+
+      // hourly 12h
+      hourly = (()=>{
+        const out=[]; const times=j.hourly?.time||[], temps=j.hourly?.temperature_2m||[], feels=j.hourly?.apparent_temperature||[];
+        const now=Date.now();
+        for(let i=0;i<times.length;i++){
+          const ts=new Date(times[i]).getTime();
+          if(ts>=now && out.length<12){ out.push({ ts, t:Math.round(temps[i]), f:Math.round(feels[i]) }); }
+        }
+        return out;
+      })();
+
+      // feels-like / humidity nearest hour
+      let feelsLike=null, rh=null;
+      try{
+        const times=j.hourly?.time||[], ap=j.hourly?.apparent_temperature||[], rhArr=j.hourly?.relativehumidity_2m||[];
+        let best=0, dif=Infinity, now=Date.now();
+        times.forEach((iso,i)=>{ const d=Math.abs(new Date(iso).getTime()-now); if(d<dif){ dif=d; best=i; }});
+        feelsLike = Number.isFinite(ap[best]) ? Math.round(ap[best]) : null;
+        rh       = Number.isFinite(rhArr[best]) ? Math.round(rhArr[best]) : null;
+      }catch{}
+
+      pill.textContent = `${icon} ${t}${unit}` + (locLabel? ` · ${locLabel}` : '');
+      pill.title = daily?.temperature_2m_max?.length ? `H:${Math.round(daily.temperature_2m_max[0])}${unit}  L:${Math.round(daily.temperature_2m_min[0])}${unit}` : '';
+      if(hint) hint.textContent='Updated.';
+
+      lastWeather = {
+        locLabel, unit, windUnit:windUnitSuffix(),
+        current: { temp:t, icon, wind:Math.round(cur.windspeed), winddir:Math.round(cur.winddirection), feelsLike, humidity:rh },
+        days: (()=>{
+          const days=[]; if(daily?.time){ for(let i=0;i<Math.min(5,daily.time.length); i++){
+            days.push({ date:daily.time[i], hi:Math.round(daily.temperature_2m_max[i]), lo:Math.round(daily.temperature_2m_min[i]), code:daily.weathercode[i] });
+          }} return days;
+        })()
+      };
+      lastDiag = { lat, lon, locLabel, tempUnit, windUnit:windUnitSuffix(), fetchedAt:new Date().toLocaleString(), url };
+
+      // Severe banner
+      const sev = (lastWeather.days?.length? severityFromCodes(lastWeather.days[0].code) : null);
+      const banner = $('#alertBanner');
+      const todayKey = new Date().toISOString().slice(0,10);
+      const dismissed = localStorage.getItem('wx_alert_dismissed_'+todayKey)==='1';
+      if(sev && !dismissed){
+        banner.style.display='block';
+        banner.innerHTML = `⚠️ <b>${sev.text}</b> expected today. High ${lastWeather.days[0].hi}${unit}, Low ${lastWeather.days[0].lo}${unit}. <button id="dismissAlert" class="btn" style="margin-left:10px;">Dismiss</button>`;
+        $('#dismissAlert').onclick = ()=>{ localStorage.setItem('wx_alert_dismissed_'+todayKey,'1'); banner.style.display='none'; };
+      }else{
+        banner.style.display='none';
+      }
+
+      if(openDetails) openDrawer();
+    }catch(err){
+      const hint=$('#wxTestHint'); if(hint) hint.textContent='Failed.';
+      $('#weatherPill').textContent = prevText || '🌤️ —°';
+      $('#weatherPill').title = (err && err.message) ? err.message : 'Weather unavailable';
+      console.error('Weather fetch failed:', err);
+      if(openDetails) alert('Weather update failed: '+(err?.message||err));
+    }
+  }
+
+  function openDrawer(){
+    if(!lastWeather){ updateWeather(true); return; }
+    $('#wxLoc').textContent = lastWeather.locLabel ? `· ${lastWeather.locLabel}` : '';
+    const u=lastWeather.unit, wu=lastWeather.windUnit, c=lastWeather.current, days=lastWeather.days||[];
+
+    const sparkSVG = (()=> {
+      const data = hourly||[];
+      if(!data.length) return '<div class="tiny">No hourly data</div>';
+      const w=560, h=64, pad=6, xs = i => pad + i*( (w-2*pad) / Math.max(1,data.length-1) );
+      const vals = data.map(d=>d.t), min=Math.min(...vals), max=Math.max(...vals);
+      const ys = v => h - pad - ((v-min)/(Math.max(1,max-min))) * (h-2*pad);
+      let path=''; data.forEach((d,i)=>{ path += (i===0?'M':'L')+xs(i)+','+ys(d.t)+' '; });
+      let pathF=''; data.forEach((d,i)=>{ pathF += (i===0?'M':'L')+xs(i)+','+ys(d.f)+' '; });
+      const labels = `${Math.round(min)}${u} – ${Math.round(max)}${u}`;
+      return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+        <path d="${path}" fill="none" stroke="#4aa3ff" stroke-width="2"/>
+        <path d="${pathF}" fill="none" stroke="#7bd389" stroke-width="2" opacity="0.8"/>
+      </svg><div class="tiny">Next 12h • Temp (blue) • Feels‑like (green) • Range: ${labels}</div>`;
+    })();
+
+    const nowHtml = `
+      <div class="wx-now">
+        <div class="b">
+          <div style="font-size:18px; font-weight:700;">Now ${c.icon||''} ${c.temp}${u}</div>
+          <div class="tiny" style="margin-top:6px;">
+            ${c.feelsLike!=null? `Feels like: <b>${c.feelsLike}${u}</b> • `:''}
+            Wind: <b>${c.wind} ${wu} ${Number.isFinite(c.winddir)? (['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW','N'][Math.round(c.winddir/22.5)]):''}</b>
+            ${c.humidity!=null? ` • Humidity: <b>${c.humidity}%</b>`:''}
+          </div>
+        </div>
+        <div class="b">
+          <div style="font-weight:700; margin-bottom:6px;">Today</div>
+          ${days.length? `<div class="tiny">High: <b>${days[0].hi}${u}</b> • Low: <b>${days[0].lo}${u}</b></div>`:'<div class="tiny">No daily data</div>'}
+        </div>
+      </div>
+      <div style="margin-top:8px;">${sparkSVG}</div>
+    `;
+    const gridHtml = `
+      <div style="margin-top:12px; font-weight:700; color:var(--muted);">Next 5 Days</div>
+      <div class="wx-grid">
+        ${(days||[]).map(d=>{
+          const dt=new Date(d.date+'T00:00:00'); const label=dt.toLocaleDateString(undefined,{weekday:'short'});
+          return `<div class="wx-day"><div class="d">${label}</div><div class="i">${WMO_ICON(d.code)}</div><div class="t">H: <b>${d.hi}${u}</b></div><div class="t">L: <b>${d.lo}${u}</b></div></div>`;
+        }).join('')}
+      </div>
+      <div class="wx-dx" style="margin-top:10px;">
+        <div><b>Diagnostics</b></div>
+        <div>Lat/Lon: ${lastDiag?.lat?.toFixed?.(3)}, ${lastDiag?.lon?.toFixed?.(3)}</div>
+        <div>Units: ${db.settings.tempUnit} • Wind: ${lastDiag?.windUnit}</div>
+        <div>Fetched: ${lastDiag?.fetchedAt||''}</div>
+        <div class="tiny" style="word-break:break-all;">API: ${escapeHtml(lastDiag?.url||'')}</div>
+      </div>
+    `;
+    $('#wxContent').innerHTML = nowHtml + gridHtml;
+    $('#weatherOverlay').classList.add('open');
+  }
+  function closeDrawer(){ $('#weatherOverlay').classList.remove('open'); }
+
+  /* Admin section render */
+  function renderAdminSection(el, ctx){
+    el.innerHTML = `
+      <div class="field"><label>Mode</label>
+        <select id="setWeatherMode"><option value="manual">Manual</option><option value="auto">Auto (HTTPS/localhost)</option></select>
+      </div>
+      <div class="field"><label>Manual City (name search)</label><input id="setWeatherCity" placeholder="e.g., Orlando" /></div>
+      <div class="field"><label>Manual Coordinates (lat, lon)</label><input id="setWeatherLat" placeholder="28.5383" /><input id="setWeatherLon" placeholder="-81.3792" /></div>
+      <div class="field"><label>Temperature unit</label><select id="setTempUnit"><option value="fahrenheit">Fahrenheit (°F)</option><option value="celsius">Celsius (°C)</option></select></div>
+      <div class="field" style="display:flex; gap:8px; align-items:center;"><button id="btnTestWeather">Test Weather Now</button><span class="tiny" id="wxTestHint"></span></div>
+    `;
+    // Set values
+    $('#setWeatherMode').value = db.settings.weather?.mode || 'manual';
+    $('#setWeatherCity').value = db.settings.weather?.city || '';
+    $('#setWeatherLat').value  = db.settings.weather?.lat || '';
+    $('#setWeatherLon').value  = db.settings.weather?.lon || '';
+    $('#setTempUnit').value    = db.settings.tempUnit || 'fahrenheit';
+
+    // Hook "Test"
+    $('#btnTestWeather').onclick = ()=> updateWeather(true);
+  }
+
+  function adminSections(ctx){
+    return [{
+      tab:'settings',
+      id:'settings-weather',
+      title:'Weather',
+      hint:'Mode, city/coords, unit, test',
+      render: renderAdminSection
+    }];
+  }
+
+  function severityFromCodes(code){
+    if([95,96,99].includes(code)) return {level:'danger', text:'Thunderstorms'};
+    if([65,67,82].includes(code)) return {level:'warn', text:'Heavy Rain'};
+    if([71,73,75,77,85,86].includes(code)) return {level:'warn', text:'Snow'};
+    return null;
+  }
+
+  return {
+    meta,
+    async init(ctx){
+      // Nothing persisted outside core yet; placeholder for growth
+    },
+    async mount(ctx){
+      // Initial update + timer
+      updateWeather();
+      setInterval(updateWeather, 30*60*1000);
+      // Wire UI
+      $('#weatherPill').onclick = ()=> openDrawer();
+      $('#wxClose').onclick = ()=> closeDrawer();
+      $('#weatherOverlay').addEventListener('click', e=>{ if(e.target===$('#weatherOverlay')) closeDrawer(); });
+      $('#wxRefresh').onclick = ()=> updateWeather(true);
+    },
+    adminSections,
+    async afterImport(ctx){
+      // After restore, recalc weather pill quickly
+      updateWeather();
+    }
+  };
+})();
+
+/* ---------- App context ---------- */
+const appCtx = {
+  version: APP_VERSION,
+  dbRef: ()=> db,
+  save: ()=> save(),
+  storage,
+  ui: {
+    addAdminSection: adminAddSection
+  }
+};
+
+/* Register internal modules */
+ModuleRegistry.register(weatherModule);
+
+/* ---------- Init & wiring ---------- */
+function init(){
+  $('#helpVersion').textContent = APP_VERSION;
+
+  applyTheme(); setGreeting(); setupSearch();
+  tickClock(); setInterval(tickClock, 1000*15);
+
+  renderQuickbar();
+  renderFavorites();
+  renderWidgets();
+
+  // Admin open/close, tabs
+  document.addEventListener('keydown', e=>{
+    if(e.altKey && !e.ctrlKey && !e.shiftKey && e.key.toLowerCase()==='a'){
+      e.preventDefault(); window.toggleAdmin();
+    }
+  });
+  $('#admin').addEventListener('click', e=>{ if(e.target===$('#admin')) $('#admin').classList.remove('open'); });
+  $$('#tabs .tab-btn').forEach(btn=> btn.addEventListener('click', ()=> openTab(btn.dataset.tab)));
+
+  // Hot corner triple-click
+  (()=>{ const hc=$('#hotCorner'); let clicks=0, timer=null; hc.addEventListener('click', ()=>{ clicks++; clearTimeout(timer); timer=setTimeout(()=>clicks=0, 500); if(clicks>=3){ clicks=0; window.toggleAdmin(); } }); })();
+
+  // Theme toggle
+  $('#themeBtn').onclick = ()=>{
+    const t=db.settings.theme||'auto';
+    db.settings.theme = (t==='auto')?'dark' : (t==='dark')?'light':'auto';
+    save(); applyTheme();
+  };
+
+  // Help
+  $('#helpBtn').onclick = ()=> $('#helpOv').classList.add('open');
+  $('#closeHelp').onclick = ()=> $('#helpOv').classList.remove('open');
+
+  // Chat
+  $('#chatBtn').onclick = openChat;
+  $('#chatClose').onclick = closeChat;
+  $('#chatSend').onclick = sendChat;
+  $('#chatInput').addEventListener('keydown', e=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChat(); }
+  });
+
+  // Settings save (core only; Weather fields are rendered by the module but saved here)
+  $('#saveSettings').onclick = ()=>{
+    db.settings.name = $('#setName').value.trim() || 'there';
+    db.settings.theme = $('#setTheme').value;
+    db.settings.adminPass = $('#setPass').value;
+    db.settings.showUTC = $('#setUTC').value==='on';
+    db.settings.linkUrlDisplay = $('#setLinkUrlDisplay').value;
+    db.settings.openInNewTab = $('#setOpenNewTab').value==='on';
+    db.settings.showQuickbar = $('#setShowQuickbar').value==='on';
+    // Gemini
+    db.settings.geminiKey = $('#setGeminiKey')?.value?.trim() || db.settings.geminiKey;
+    db.settings.geminiModel = $('#setGeminiModel')?.value || db.settings.geminiModel;
+    // Weather (fields provided by module)
+    if($('#setWeatherMode')){
+      db.settings.weather = {
+        mode: $('#setWeatherMode').value,
+        city: $('#setWeatherCity').value.trim(),
+        lat:  $('#setWeatherLat').value.trim(),
+        lon:  $('#setWeatherLon').value.trim()
+      };
+      db.settings.tempUnit = $('#setTempUnit').value;
+    }
+    // Backup prefs
+    db.settings.autoBackup = $('#setAutoBackup').value;
+    db.settings.autoBackupDownload = $('#setAutoBackupDownload').value;
+
+    save(); applyTheme(); setGreeting(); renderQuickbar(); renderFavorites();
+    doAutoBackupIfDue(true);
+    alert('Settings saved.');
+  };
+
+  // Backup tab
+  $('#exportBtn').onclick = ()=> downloadBlob(JSON.stringify(exportAll(),null,2), 'startpage-settings.json', 'application/json');
+  $('#importFile').addEventListener('change', async e=>{
+    const file=e.target.files?.[0]; if(!file) return;
+    try{ const text=await file.text(); const obj=JSON.parse(text); await importAll(obj); alert('Imported successfully.'); }
+    catch(err){ alert('Import failed: '+(err?.message||err)); }
+    e.target.value='';
+  });
+  $('#backupNow').onclick = ()=>{ createAutoBackup(true); refreshAdmin(); alert('Backup stored locally.'); };
+  $('#downloadLastAutoBackup').onclick = ()=>{
+    const wrap = loadAutoBackup();
+    if(!wrap){ return alert('No auto-backup yet.'); }
+    const name = `startpage-autobackup-${fmtDate(wrap.time)}.json`;
+    downloadBlob(JSON.stringify(wrap.data,null,2), name, 'application/json');
+  };
+
+  // Auto‑backup scheduler
+  doAutoBackupIfDue(false);
+
+  // Init and mount modules
+  ModuleRegistry.initAll(appCtx).then(()=> ModuleRegistry.mountAll(appCtx));
+}
+document.addEventListener('DOMContentLoaded', init);
+
+/* ---------- Chat (Gemini) ---------- */
+const CHAT_API_BASE='https://generativelanguage.googleapis.com/v1beta';
+function openChat(){ $('#chat').classList.add('open'); renderChatHistory(); $('#chatInput').focus(); }
+function closeChat(){ $('#chat').classList.remove('open'); }
+function renderChatHistory(){
+  const box=$('#chatMessages'); box.innerHTML='';
+  db.chatHistory.forEach(m=>{
+    const div=document.createElement('div');
+    div.style.background='var(--bg-elev-2)'; div.style.border='1px solid var(--tile-border)'; div.style.borderRadius='10px';
+    div.style.padding='10px 12px'; div.style.maxWidth='85%'; div.style.whiteSpace='pre-wrap'; div.textContent=m.text;
+    div.style.alignSelf=(m.role==='user'?'flex-end':'flex-start');
+    if(m.role==='user'){ div.style.background='linear-gradient(180deg,#1b2739,#152033)'; div.style.borderColor='#27405f'; }
+    box.appendChild(div);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+async function sendChat(){
+  const input=$('#chatInput'); const prompt=input.value.trim(); if(!prompt) return; input.value='';
+  db.chatHistory.push({role:'user', text:prompt}); save(); renderChatHistory();
+  const key=(db.settings.geminiKey||'').trim(); const model=db.settings.geminiModel||'gemini-1.5-flash-latest';
+  if(!key){ db.chatHistory.push({role:'assistant', text:'No Gemini API key set. Add one in Admin → Settings → Gemini API key.'}); save(); renderChatHistory(); return; }
+  try{
+    const resp=await fetch(`${CHAT_API_BASE}/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ contents:[{role:'user', parts:[{text:prompt}]}], generationConfig:{temperature:0.3} })
+    });
+    if(!resp.ok){ const t=await resp.text(); throw new Error(`API error ${resp.status}: ${t}`); }
+    const data=await resp.json(); const text=(data?.candidates?.[0]?.content?.parts?.map(p=>p.text).join('')||'').trim()||'(No response)';
+    db.chatHistory.push({role:'assistant', text}); save(); renderChatHistory();
+  }catch(e){ db.chatHistory.push({role:'assistant', text:'Request failed: '+(e?.message||e)}); save(); renderChatHistory(); }
+}
+</script>
+</body>
+</html>
